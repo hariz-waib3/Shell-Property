@@ -9,7 +9,7 @@ import { RouterLink } from 'vue-router'
 //   <BaseButton small icon="trash" danger>Delete</BaseButton>        small, red text
 //   <BaseButton :to="{ name: 'admin-plans' }">Edit plans</BaseButton> works as a link
 //   <BaseButton small icon-only icon="edit" label="Edit" />          borderless icon, dark tooltip on hover
-// Two root nodes (the button and its tooltip), so class / disabled / aria-* from the parent are passed on by hand.
+// Two root nodes (the button and its tooltip), so class / disabled / aria-* from the parent are passed on by hand.dvc
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
