@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Demo Partner",
+    "email": "demo@example.com",
+    "phone": "0400 111 222",
+    "state": "VIC",
+    "company": "Sample Realty",
+    "plan": "free",
+    "status": "Active",
+    "since": "2026-10-02"
+  },
+  {
+    "id": 2,
+    "name": "Alex Morgan",
+    "email": "alex@example.com",
+    "phone": "0400 333 444",
+    "state": "NSW",
+    "company": "Example Advisory",
+    "plan": "pro",
+    "status": "Active",
+    "since": "2026-08-14"
+  },
+  {
+    "id": 3,
+    "name": "Sam Patel",
+    "email": "sam@example.com",
+    "phone": "0400 555 666",
+    "state": "QLD",
+    "company": "Placeholder Buyers Agency",
+    "plan": "pro",
+    "status": "Trial",
+    "since": "2026-11-18"
+  },
+  {
+    "id": 4,
+    "name": "Jordan Lee",
+    "email": "jordan@example.com",
+    "phone": "0400 777 888",
+    "state": "WA",
+    "company": "Test Property Group",
+    "plan": "pro",
+    "status": "Past due",
+    "since": "2026-05-30"
+  },
+  {
+    "id": 5,
+    "name": "Taylor Kim",
+    "email": "taylor@example.com",
+    "phone": "0400 999 000",
+    "state": "SA",
+    "company": "Sample Wealth",
+    "plan": "free",
+    "status": "Active",
+    "since": "2026-11-01"
+  }
+]

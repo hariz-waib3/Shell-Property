@@ -1,0 +1,8 @@
+{
+  "prices": true,
+  "detail": true,
+  "brochure": true,
+  "documents": true,
+  "enquiry": false,
+  "freeRows": 4
+}

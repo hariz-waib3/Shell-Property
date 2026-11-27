@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "category": "Suburb Profiles",
+    "title": "Werribee, VIC 3030",
+    "description": "Growth corridor west of Melbourne on the Werribee River.",
+    "size": "1.2 MB"
+  },
+  {
+    "id": 2,
+    "category": "Suburb Profiles",
+    "title": "Rosewood, QLD 4340",
+    "description": "Semi-rural township west of Ipswich with new estates.",
+    "size": "1.6 MB"
+  },
+  {
+    "id": 3,
+    "category": "Suburb Profiles",
+    "title": "Angle Vale, SA 5117",
+    "description": "Township on the Gawler River in Adelaide's north.",
+    "size": "2.5 MB"
+  },
+  {
+    "id": 4,
+    "category": "Suburb Profiles",
+    "title": "Kelmscott, WA 6111",
+    "description": "Established suburb in Perth's south-east.",
+    "size": "1.1 MB"
+  },
+  {
+    "id": 5,
+    "category": "Market Reports",
+    "title": "Quarterly H&L Market Update",
+    "description": "Pricing, land supply and rental trends across corridors.",
+    "size": "3.4 MB"
+  },
+  {
+    "id": 6,
+    "category": "Forms & Templates",
+    "title": "Expression of Interest (EOI) Form",
+    "description": "Standard EOI template for all estates.",
+    "size": "240 KB"
+  }
+]

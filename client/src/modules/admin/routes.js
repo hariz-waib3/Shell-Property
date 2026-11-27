@@ -1,0 +1,66 @@
+export const adminRoutes = [
+  {
+    path: '',
+    name: 'admin-dashboard',
+    component: () => import('./views/AdminDashboardView.vue'),
+    meta: { title: 'Dashboard', nav: 'admin-dashboard' },
+  },
+  {
+    path: 'properties',
+    name: 'admin-properties',
+    component: () => import('./views/AdminPropertiesView.vue'),
+    meta: { title: 'Manage properties', nav: 'admin-properties' },
+  },
+  {
+    path: 'properties/new',
+    name: 'admin-property-new',
+    component: () => import('./views/AdminPropertyDetailView.vue'),
+    props: { id: null },
+    meta: { title: 'Add property', nav: 'admin-properties' },
+  },
+  {
+    path: 'properties/:id(\\d+)',
+    name: 'admin-property-detail',
+    component: () => import('./views/AdminPropertyDetailView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+    meta: { title: 'Property details', nav: 'admin-properties' },
+  },
+  {
+    path: 'enquiries',
+    name: 'admin-enquiries',
+    component: () => import('./views/AdminEnquiriesView.vue'),
+    meta: { title: 'Enquiries & deals', nav: 'admin-enquiries' },
+  },
+  {
+    path: 'enquiries/:id(\\d+)',
+    name: 'admin-enquiry-detail',
+    component: () => import('./views/AdminEnquiryDetailView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+    meta: { title: 'Enquiry', nav: 'admin-enquiries' },
+  },
+  {
+    path: 'documents',
+    name: 'admin-documents',
+    component: () => import('./views/AdminDocumentsView.vue'),
+    meta: { title: 'Manage documents', nav: 'admin-documents' },
+  },
+  {
+    path: 'subscribers',
+    name: 'admin-subscribers',
+    component: () => import('./views/AdminSubscribersView.vue'),
+    meta: { title: 'Subscribers', nav: 'admin-subscribers' },
+  },
+  {
+    path: 'subscribers/:id(\\d+)',
+    name: 'admin-subscriber-detail',
+    component: () => import('./views/AdminSubscriberDetailView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+    meta: { title: 'Subscriber', nav: 'admin-subscribers' },
+  },
+  {
+    path: 'plans',
+    name: 'admin-plans',
+    component: () => import('./views/AdminPlansView.vue'),
+    meta: { title: 'Plans & paywall', nav: 'admin-plans' },
+  },
+]

@@ -1,0 +1,16 @@
+{
+  "name": "shell-property-demo-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Demo only: serves the built client and saves all app data in one JSON file. Replaced by the .NET API.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

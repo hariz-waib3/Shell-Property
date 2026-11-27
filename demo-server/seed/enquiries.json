@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "user": "Alex Morgan",
+    "kind": "Property",
+    "ref": "Clyde North, Lot 637",
+    "detail": "Buyer pre-approved, wants to hold for 48h.",
+    "stage": "Enquiries & holds",
+    "date": "2026-11-21"
+  },
+  {
+    "id": 2,
+    "user": "Sam Patel",
+    "kind": "Sourcing",
+    "ref": "3 beds H&L · SA · ≤ $750k",
+    "detail": "Investor, decision within 3 days.",
+    "stage": "New",
+    "date": "2026-11-22"
+  },
+  {
+    "id": 3,
+    "user": "Jordan Lee",
+    "kind": "Property",
+    "ref": "Rosewood, Lot 150",
+    "detail": "Client wants the EOI form today.",
+    "stage": "EOIs",
+    "date": "2026-11-20"
+  },
+  {
+    "id": 4,
+    "user": "Alex Morgan",
+    "kind": "Property",
+    "ref": "Melton South, Lot 1305",
+    "detail": "Finance approved, contracts out.",
+    "stage": "Under Offer",
+    "date": "2026-11-18"
+  },
+  {
+    "id": 5,
+    "user": "Taylor Kim",
+    "kind": "General",
+    "ref": "Question about NDIS listings",
+    "detail": "Asked which estates allow SDA builds.",
+    "stage": "New",
+    "date": "2026-11-23"
+  },
+  {
+    "id": 6,
+    "user": "Sam Patel",
+    "kind": "Property",
+    "ref": "Fraser Rise, Lot 103",
+    "detail": "Settled last week.",
+    "stage": "Sold",
+    "date": "2026-11-12"
+  },
+  {
+    "id": 7,
+    "user": "Jordan Lee",
+    "kind": "Property",
+    "ref": "Burpengary, Lot 21",
+    "detail": "Slab poured, frame stage next.",
+    "stage": "Construction",
+    "date": "2026-10-28"
+  },
+  {
+    "id": 8,
+    "user": "Demo Partner",
+    "kind": "Property",
+    "ref": "Kelmscott, Lot 2",
+    "detail": "Holding for 48h while buyer reviews.",
+    "stage": "Enquiries & holds",
+    "date": "2026-11-22"
+  }
+]
