@@ -1,17 +1,17 @@
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { db } from '@/stores/db'
 import { packagePrice } from '@/utils/format'
 
 function getEmptyFilters() {
-  return { query: '', states: [], types: [], statuses: [], maxPrice: '', minBeds: '' }
+  return { query: '', states: [], suburbs: [], types: [], statuses: [], maxPrice: '', minBeds: '' }
 }
 
 // Created once, outside the function, so the filters are kept when you open a property and come back.
 const filters = reactive(getEmptyFilters())
-const showFilterPanel = ref(false)
 
 function matchesFilters(property) {
   if (filters.states.length > 0 && !filters.states.includes(property.state)) return false
+  if (filters.suburbs.length > 0 && !filters.suburbs.includes(property.suburb)) return false
   if (filters.types.length > 0 && !filters.types.includes(property.type)) return false
   if (filters.statuses.length > 0 && !filters.statuses.includes(property.status)) return false
   if (filters.maxPrice && packagePrice(property) > Number(filters.maxPrice)) return false
@@ -33,11 +33,12 @@ export function usePropertyFilters() {
     db.properties.filter((property) => property.active).filter(matchesFilters),
   )
 
-  // Number of filters in use (shown as a badge on the filter icon).
+  // Number of filters in use (enables "Clear filters").
   const activeFilterCount = computed(
     () =>
       [
         filters.states.length > 0,
+        filters.suburbs.length > 0,
         filters.types.length > 0,
         filters.statuses.length > 0,
         Boolean(filters.maxPrice),
@@ -45,10 +46,10 @@ export function usePropertyFilters() {
       ].filter(Boolean).length,
   )
 
-  // Keeps the search text; only the filter panel is cleared.
+  // The quick search sits in the sidebar too, so it is cleared along with the filters.
   function clearFilters() {
-    Object.assign(filters, { ...getEmptyFilters(), query: filters.query })
+    Object.assign(filters, getEmptyFilters())
   }
 
-  return { filters, showFilterPanel, visibleProperties, activeFilterCount, clearFilters }
+  return { filters, visibleProperties, activeFilterCount, clearFilters }
 }

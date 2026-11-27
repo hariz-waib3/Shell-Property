@@ -2,7 +2,7 @@
 import PropertyDescription from './PropertyDescription.vue'
 import PropertyLocation from './PropertyLocation.vue'
 import PropertySpecs from './PropertySpecs.vue'
-import { PROPERTY_DISCLAIMER } from '@/data/constants'
+import { db } from '@/stores/db'
 
 // Everything below the summary on the property page, in order. Shared by the partner and admin pages.
 defineProps({
@@ -15,9 +15,9 @@ defineProps({
   <PropertyDescription :property="property" />
   <PropertyLocation :property="property" />
 
-  <section class="detail-block">
+  <section v-if="db.disclaimer" class="detail-block">
     <div class="section-t">Disclaimer</div>
-    <p class="muted disclaimer">{{ PROPERTY_DISCLAIMER }}</p>
+    <p class="muted disclaimer">{{ db.disclaimer }}</p>
   </section>
 </template>
 
@@ -25,5 +25,6 @@ defineProps({
 .disclaimer {
   font-size: 12.5px;
   line-height: 1.6;
+  white-space: pre-line;
 }
 </style>

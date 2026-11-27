@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import CustomSelect from '@/components/common/CustomSelect.vue'
 import DatePicker from '@/components/common/DatePicker.vue'
+import TagInput from '@/components/common/TagInput.vue'
+import { db } from '@/stores/db'
 import { vDecimal } from '@/directives/vDecimal'
 import { vNoAutofill } from '@/directives/vNoAutofill'
 import { isCoordinate, mapEmbedUrl } from '@/utils/map'
@@ -18,6 +20,11 @@ const props = defineProps({
 const values = props.form
 
 const STOREYS = ['Single', 'Double']
+
+// The standard list plus anything typed on other properties, so new entries can be picked again.
+const suggestionsFor = (key) => [...new Set([...db[key], ...db.properties.flatMap((property) => property[key] || [])])]
+const inclusionSuggestions = computed(() => suggestionsFor('inclusions'))
+const purchasingTermSuggestions = computed(() => suggestionsFor('purchasingTerms'))
 
 // Optional sections: closed until "Add" is clicked, but open straight away when the property already has them.
 const showDescription = ref(Boolean(values.descriptionTitle || values.description))
@@ -279,6 +286,32 @@ function removeReferral() {
           ></textarea>
         </div>
       </template>
+    </section>
+
+    <section class="form-section">
+      <h3 class="form-section-t">Inclusions</h3>
+      <div class="field">
+        <TagInput
+          id="pf-inclusions"
+          v-model="values.inclusions"
+          :suggestions="inclusionSuggestions"
+          placeholder="Type to search, or press Enter to add a new one"
+        />
+        <div class="field-hint">Pick from the list, or type a new inclusion and press Enter.</div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3 class="form-section-t">Purchasing terms</h3>
+      <div class="field">
+        <TagInput
+          id="pf-purchasing-terms"
+          v-model="values.purchasingTerms"
+          :suggestions="purchasingTermSuggestions"
+          placeholder="Type to search, or press Enter to add a new one"
+        />
+        <div class="field-hint">Pick from the list, or type a new term and press Enter.</div>
+      </div>
     </section>
 
     <section class="form-section">

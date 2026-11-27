@@ -1,5 +1,6 @@
 import { ROLES } from '@/data/constants'
 
+// comingSoon: shown greyed out with a "Coming soon" tooltip, not clickable.
 export const NAVIGATION = {
   [ROLES.PARTNER]: [
     { name: 'properties', label: 'Properties' },
@@ -7,7 +8,7 @@ export const NAVIGATION = {
     { name: 'my-deals', label: 'My Deals' },
     { name: 'documents', label: 'Documents' },
     { name: 'sourcing-request', label: 'General Enquiry' },
-    { name: 'billing', label: 'Plan & Billing' },
+    { name: 'billing', label: 'Plan & Billing', comingSoon: true },
   ],
   [ROLES.ADMIN]: [
     { name: 'admin-dashboard', label: 'Dashboard' },

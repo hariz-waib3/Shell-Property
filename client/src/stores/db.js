@@ -23,10 +23,13 @@ export async function resetDemoData() {
 
 // Brings data saved by an older version of the app up to date, so old JSON files keep working.
 // Status "Hidden" became a separate switch: active = false (disabled), status = "Available".
+// Inclusions and purchasing terms moved from one shared list onto each property; older properties start with the shared list.
 function upgradeData(data) {
   data.properties.forEach((property) => {
     if (property.active === undefined) property.active = property.status !== 'Hidden'
     if (property.status === 'Hidden') property.status = 'Available'
+    if (!property.inclusions) property.inclusions = [...data.inclusions]
+    if (!property.purchasingTerms) property.purchasingTerms = [...data.purchasingTerms]
   })
   return data
 }
@@ -124,6 +127,10 @@ export function updateUser(id, data) {
     if (enquiry.user === user.name) enquiry.user = data.name
   })
   Object.assign(user, data)
+}
+
+export function updateDisclaimer(text) {
+  db.disclaimer = text
 }
 
 export function updateAdminProfile(data) {

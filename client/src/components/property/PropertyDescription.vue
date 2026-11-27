@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import ImageLightbox from '@/components/common/ImageLightbox.vue'
-import { db } from '@/stores/db'
 
 // "Description", "Floorplan", "Inclusions" and "Purchasing terms" on the property page (partner and admin).
 const props = defineProps({
@@ -52,17 +51,17 @@ const openFloorplanIndex = ref(null) // which floorplan is open full screen, or 
     />
   </section>
 
-  <section class="detail-block">
+  <section v-if="property.inclusions?.length" class="detail-block">
     <div class="section-t">Inclusions</div>
     <div class="incl">
-      <div v-for="item in db.inclusions" :key="item">{{ item }}</div>
+      <div v-for="item in property.inclusions" :key="item">{{ item }}</div>
     </div>
   </section>
 
-  <section class="detail-block">
+  <section v-if="property.purchasingTerms?.length" class="detail-block">
     <div class="section-t">Purchasing terms</div>
     <div class="incl terms">
-      <div v-for="term in db.purchasingTerms" :key="term">{{ term }}</div>
+      <div v-for="term in property.purchasingTerms" :key="term">{{ term }}</div>
     </div>
   </section>
 </template>

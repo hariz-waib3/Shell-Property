@@ -79,9 +79,15 @@ watch(
       </RouterLink>
 
       <nav id="main-nav" :class="{ open: menuOpen }">
-        <RouterLink v-for="item in navItems" :key="item.name" :to="{ name: item.name }" :class="{ on: isActive(item) }">
-          {{ item.label }}
-        </RouterLink>
+        <template v-for="item in navItems" :key="item.name">
+          <span v-if="item.comingSoon" class="nav-soon" tabindex="0" aria-disabled="true">
+            {{ item.label }}
+            <span class="soon-tip" role="tooltip">Coming soon</span>
+          </span>
+          <RouterLink v-else :to="{ name: item.name }" :class="{ on: isActive(item) }">
+            {{ item.label }}
+          </RouterLink>
+        </template>
       </nav>
 
       <div class="who">
@@ -109,7 +115,7 @@ watch(
                 </div>
               </div>
 
-              <!-- Partner: current plan, with a demo switch and a link to Plan & Billing. -->
+              <!-- Partner: current plan, with a demo switch. Plan & Billing is coming soon. -->
               <div v-if="!isAdmin" class="menu-section">
                 <span class="menu-label">Current plan</span>
                 <div class="plan-row">
@@ -118,7 +124,9 @@ watch(
                     Switch to {{ isPro ? 'Free' : 'Pro' }} (demo)
                   </button>
                 </div>
-                <RouterLink class="menu-item" role="menuitem" :to="{ name: 'billing' }">Plan &amp; Billing</RouterLink>
+                <span class="menu-item menu-soon" role="menuitem" aria-disabled="true">
+                  Plan &amp; Billing <span class="soon-badge">Coming soon</span>
+                </span>
               </div>
 
               <div class="menu-section">
@@ -264,6 +272,69 @@ watch(
 
 .menu-item:hover {
   background: var(--bg);
+}
+
+/* Not built yet: greyed out, "Coming soon" tooltip on hover / focus. */
+.nav-soon {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #6f737b;
+  font-size: 13.5px;
+  cursor: not-allowed;
+}
+
+.nav-soon:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #3a3d44;
+}
+
+.soon-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 60;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(20, 22, 26, 0.18);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -2px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.nav-soon:hover .soon-tip,
+.nav-soon:focus-visible .soon-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.menu-soon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.menu-soon:hover {
+  background: none;
+}
+
+.soon-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .menu-item.logout {

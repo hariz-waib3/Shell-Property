@@ -35,6 +35,8 @@ const NEW_PROPERTY = {
   referralFee: '',
   referralTerms: '',
   tags: [],
+  inclusions: [],
+  purchasingTerms: [],
   images: [],
   floorplans: [],
 }
@@ -63,7 +65,7 @@ const REQUIRED_FIELDS = [
 // Form state for adding or editing a property.
 // Used by the add / edit property page.
 export function usePropertyForm() {
-  const form = reactive({ ...NEW_PROPERTY, tags: [], images: [], floorplans: [] })
+  const form = reactive({ ...NEW_PROPERTY, tags: [], inclusions: [], purchasingTerms: [], images: [], floorplans: [] })
 
   // Fill the form from a property, or with blank values when propertyId is null.
   // The form is a copy, so nothing changes on screen until save() is called.
@@ -73,6 +75,8 @@ export function usePropertyForm() {
       ...NEW_PROPERTY,
       ...source,
       tags: [...source.tags],
+      inclusions: [...(source.inclusions || [])],
+      purchasingTerms: [...(source.purchasingTerms || [])],
       images: [...(source.images || [])],
       floorplans: [...(source.floorplans || [])],
     })
@@ -125,6 +129,8 @@ export function usePropertyForm() {
       referralFee: form.referralFee.trim(),
       referralTerms: form.referralTerms.trim(),
       tags: form.tags,
+      inclusions: form.inclusions,
+      purchasingTerms: form.purchasingTerms,
       images: form.images,
       floorplans: form.floorplans,
     }

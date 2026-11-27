@@ -2,12 +2,13 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DemoDataSettings from '../components/DemoDataSettings.vue'
+import DisclaimerSettings from '../components/DisclaimerSettings.vue'
 import PasswordSettings from '../components/PasswordSettings.vue'
 import ProfileSettings from '../components/ProfileSettings.vue'
 import SubscriptionSettings from '../components/SubscriptionSettings.vue'
 import { isAdmin } from '@/stores/session'
 
-// Settings for both roles. Partners also get "Subscription"; the admin has no plan of their own.
+// Settings for both roles. Partners also get "Subscription"; the admin has no plan of their own but edits the disclaimer.
 // The open section is kept in the URL (?tab=password), so it can be linked to directly.
 const route = useRoute()
 const router = useRouter()
@@ -17,8 +18,9 @@ const sections = computed(() =>
     { key: 'profile', label: 'Profile', hint: 'Name and contact details' },
     { key: 'subscription', label: 'Subscription', hint: 'Plan and billing', partnerOnly: true },
     { key: 'password', label: 'Password', hint: 'Change your password' },
+    { key: 'disclaimer', label: 'Disclaimer', hint: 'Shown on every property page', adminOnly: true },
     { key: 'demo', label: 'Demo data', hint: 'Reset the sample data' },
-  ].filter((section) => !section.partnerOnly || !isAdmin.value),
+  ].filter((section) => (isAdmin.value ? !section.partnerOnly : !section.adminOnly)),
 )
 
 const activeKey = computed(() => {
@@ -59,6 +61,7 @@ function openSection(key) {
       <ProfileSettings v-if="activeKey === 'profile'" />
       <SubscriptionSettings v-else-if="activeKey === 'subscription'" />
       <PasswordSettings v-else-if="activeKey === 'password'" />
+      <DisclaimerSettings v-else-if="activeKey === 'disclaimer'" />
       <DemoDataSettings v-else />
     </section>
   </div>
