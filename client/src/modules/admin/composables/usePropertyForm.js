@@ -6,6 +6,7 @@ import { isCoordinate } from '@/utils/map'
 const NEW_PROPERTY = {
   state: 'VIC',
   suburb: '',
+  region: '',
   lot: '',
   address: '',
   latitude: '',
@@ -100,6 +101,7 @@ export function usePropertyForm() {
     const data = {
       state: form.state,
       suburb: form.suburb.trim(),
+      region: form.region.trim(),
       lot: form.lot.trim(),
       address: form.address.trim(),
       latitude: toCoordinate(form.latitude),

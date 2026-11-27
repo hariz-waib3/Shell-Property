@@ -26,6 +26,17 @@ const suggestionsFor = (key) => [...new Set([...db[key], ...db.properties.flatMa
 const inclusionSuggestions = computed(() => suggestionsFor('inclusions'))
 const purchasingTermSuggestions = computed(() => suggestionsFor('purchasingTerms'))
 
+// Regions already used in the chosen state, so the same council is spelled the same way each time.
+const regionSuggestions = computed(() =>
+  [
+    ...new Set(
+      db.properties
+        .filter((property) => property.state === values.state && property.region)
+        .map((property) => property.region),
+    ),
+  ].sort(),
+)
+
 // Optional sections: closed until "Add" is clicked, but open straight away when the property already has them.
 const showDescription = ref(Boolean(values.descriptionTitle || values.description))
 const showReferral = ref(Boolean(values.referralFee || values.referralTerms))
@@ -75,7 +86,20 @@ function removeReferral() {
         </div>
       </div>
 
-      <div class="grid2">
+      <div class="grid3">
+        <div class="field">
+          <label for="pf-region">Region / council</label>
+          <input
+            id="pf-region"
+            v-model="values.region"
+            list="pf-region-list"
+            autocomplete="off"
+            placeholder="e.g. Casey"
+          />
+          <datalist id="pf-region-list">
+            <option v-for="region in regionSuggestions" :key="region" :value="region" />
+          </datalist>
+        </div>
         <div class="field">
           <label for="pf-address">Street address (optional)</label>
           <input id="pf-address" v-model="values.address" autocomplete="off" placeholder="e.g. 12 Kinship St, 3978" />

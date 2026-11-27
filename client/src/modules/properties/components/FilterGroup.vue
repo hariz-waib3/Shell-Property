@@ -86,6 +86,15 @@ function toggle(value) {
   text-align: left;
 }
 
+.group-head:focus {
+  outline: none;
+}
+
+.group-head:focus-visible .group-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .group-head:hover .group-title {
   color: var(--gold-d);
 }

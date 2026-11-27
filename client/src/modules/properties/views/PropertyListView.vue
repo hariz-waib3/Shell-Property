@@ -1,68 +1,109 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import PaywallBanner from '@/components/common/PaywallBanner.vue'
+import SearchDropdown from '@/components/common/SearchDropdown.vue'
 import TablePagination from '@/components/common/TablePagination.vue'
 import PropertyTable from '@/components/property/PropertyTable.vue'
 import FilterGroup from '../components/FilterGroup.vue'
-import { usePropertyFilters } from '../composables/usePropertyFilters'
-import { PROPERTY_STATUSES } from '@/data/constants'
+import { LIST_FILTERS, usePropertyFilters } from '../composables/usePropertyFilters'
+import { CONTRACT_TYPES, PROPERTY_STATUSES, PROPERTY_TYPES, STATES } from '@/data/constants'
 import { useTableControls } from '@/composables/useTableControls'
 import { PROPERTY_SORT } from '@/utils/propertySort'
-import { PROPERTY_TYPES, STATES } from '@/data/constants'
 import { db } from '@/stores/db'
 import { isLocked } from '@/stores/session'
 import { toast } from '@/stores/ui'
 import { formatPrice } from '@/utils/format'
 
-// Filters always open in a column on the left (quick search + collapsible groups); the table and paging on the right.
-const { filters, visibleProperties, activeFilterCount, clearFilters } = usePropertyFilters()
+// Filters always open in a column on the left (accordion groups); search is the lens icon above the table; the table and paging on the right.
+const { filters, activeProperties, visibleProperties, activeFilterCount, clearFilters } = usePropertyFilters()
 
 const { sortBy, sortArrow, sortedRows, page, pageSize, pagedRows } = useTableControls(visibleProperties, {
   ...PROPERTY_SORT,
   resetOn: () => filters,
 })
 
-const PRICE_OPTIONS = [600000, 750000, 900000, 1200000]
+const PRICE_OPTIONS = [400000, 500000, 600000, 700000, 800000, 900000, 1000000, 1200000]
 const BED_OPTIONS = [2, 3, 4, 5]
 
 /* ---------- Sidebar options, with how many listings each one has ---------- */
 
-const activeProperties = computed(() => db.properties.filter((property) => property.active))
-
-function countBy(key) {
+// How many of `properties` have each value of a checkbox filter (a property can count for several categories).
+function countValues(key, properties = activeProperties.value) {
   const counts = {}
-  activeProperties.value.forEach((property) => {
-    counts[property[key]] = (counts[property[key]] || 0) + 1
+  properties.forEach((property) => {
+    ;[LIST_FILTERS[key](property)].flat().forEach((value) => {
+      if (value) counts[value] = (counts[value] || 0) + 1
+    })
   })
   return counts
 }
 
 // Only values that have listings, so no option leads to an empty table.
-function optionsFor(values, key) {
-  const counts = countBy(key)
-  return values.filter((value) => counts[value]).map((value) => ({ value, label: value, meta: counts[value] }))
+// `order` fixes the order (e.g. states); otherwise the most common values come first.
+function optionsFor(key, order = null) {
+  const counts = countValues(key)
+  const values = order
+    ? order.filter((value) => counts[value])
+    : Object.keys(counts).sort((a, b) => counts[b] - counts[a])
+  return values.map((value) => ({ value, label: value, meta: counts[value] }))
 }
 
-const stateOptions = computed(() => optionsFor(STATES, 'state'))
-const typeOptions = computed(() => optionsFor(PROPERTY_TYPES, 'type'))
-const statusOptions = computed(() => optionsFor(PROPERTY_STATUSES, 'status'))
+const stateOptions = computed(() => optionsFor('states', STATES))
+const typeOptions = computed(() => optionsFor('types', PROPERTY_TYPES))
+const categoryOptions = computed(() => optionsFor('categories', ['Exclusive', 'New']))
+const contractOptions = computed(() => optionsFor('contracts', CONTRACT_TYPES))
+const incentiveOptions = computed(() => optionsFor('incentives'))
+const storeyOptions = computed(() => optionsFor('storeys', ['Single', 'Double']))
+const titleOptions = computed(() => optionsFor('titleStatuses', ['Titled', 'Untitled']))
+const statusOptions = computed(() => optionsFor('statuses', PROPERTY_STATUSES))
 
+// Regions follow the picked states, suburbs follow the picked states and regions.
+// Ticked values always stay in the list so they can be unticked. Shown A–Z with "STATE · count".
+const regionQuery = ref('')
 const suburbQuery = ref('')
 
-// Suburbs follow the picked states. Ticked suburbs stay in the list so they can be unticked.
-const suburbOptions = computed(() => {
-  const counts = countBy('suburb')
-  const stateOf = Object.fromEntries(activeProperties.value.map((property) => [property.suburb, property.state]))
-  const text = suburbQuery.value.trim().toLowerCase()
-  return Object.keys(counts)
-    .filter(
-      (suburb) =>
-        filters.suburbs.includes(suburb) || !filters.states.length || filters.states.includes(stateOf[suburb]),
-    )
-    .filter((suburb) => suburb.toLowerCase().includes(text))
+function placeOptions(key, query, narrowBy) {
+  const pool = activeProperties.value.filter((property) => narrowBy.every((by) => matchesPicked(by, property)))
+  const counts = countValues(key, pool)
+  const stateOf = Object.fromEntries(pool.map((property) => [LIST_FILTERS[key](property), property.state]))
+  const text = query.trim().toLowerCase()
+  const picked = filters[key].filter((value) => !(value in counts))
+  return [...Object.keys(counts), ...picked]
+    .filter((value) => filters[key].includes(value) || value.toLowerCase().includes(text))
     .sort((a, b) => a.localeCompare(b))
-    .map((suburb) => ({ value: suburb, label: suburb, meta: `${stateOf[suburb]} · ${counts[suburb]}` }))
+    .map((value) => ({ value, label: value, meta: counts[value] ? `${stateOf[value]} · ${counts[value]}` : '' }))
+}
+
+function matchesPicked(key, property) {
+  return filters[key].length === 0 || filters[key].includes(LIST_FILTERS[key](property))
+}
+
+const regionOptions = computed(() => placeOptions('regions', regionQuery.value, ['states']))
+const suburbOptions = computed(() => placeOptions('suburbs', suburbQuery.value, ['states', 'regions']))
+
+/* ---------- Sidebar scrolls on its own ---------- */
+
+// The sidebar sticks below the (sticky) site header and scrolls by itself. Its height is what is left of the
+// window below its top edge, so the last filters are never cut off, also before the page is scrolled.
+const sidebarEl = ref(null)
+const sidebarStyle = ref({})
+
+function fitSidebar() {
+  const headerHeight = document.querySelector('header.top')?.offsetHeight || 0
+  const top = Math.max(sidebarEl.value.getBoundingClientRect().top, headerHeight + 16)
+  sidebarStyle.value = { top: `${headerHeight + 16}px`, maxHeight: `${window.innerHeight - top - 16}px` }
+}
+
+onMounted(() => {
+  fitSidebar()
+  window.addEventListener('scroll', fitSidebar, { passive: true })
+  window.addEventListener('resize', fitSidebar)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', fitSidebar)
+  window.removeEventListener('resize', fitSidebar)
 })
 
 /* ---------- Free plan limits ---------- */
@@ -87,33 +128,25 @@ function exportStocklist() {
 
 <template>
   <div class="list-layout">
-    <aside class="card filter-side" aria-label="Filters">
+    <aside ref="sidebarEl" class="filter-side" :style="sidebarStyle" aria-label="Filters">
       <div class="refine-head">
         <h2>Refine by</h2>
-        <button
-          type="button"
-          class="clear-link"
-          :disabled="activeFilterCount === 0 && !filters.query"
-          @click="clearFilters"
-        >
+        <button type="button" class="clear-link" :disabled="activeFilterCount === 0" @click="clearFilters">
           Clear all
         </button>
       </div>
 
-      <div class="quick-search">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" />
-          <path d="M20 20l-3.5-3.5" />
-        </svg>
-        <input
-          v-model="filters.query"
-          type="search"
-          placeholder="Quick search…"
-          aria-label="Search by suburb, estate or lot"
-        />
-      </div>
-
       <FilterGroup v-model="filters.states" title="State" :options="stateOptions" start-open />
+
+      <FilterGroup v-model="filters.regions" title="Region" :options="regionOptions">
+        <input
+          v-model="regionQuery"
+          class="group-search"
+          type="search"
+          placeholder="Filter region…"
+          aria-label="Filter region"
+        />
+      </FilterGroup>
 
       <FilterGroup v-model="filters.suburbs" title="Suburb" :options="suburbOptions">
         <input
@@ -125,16 +158,24 @@ function exportStocklist() {
         />
       </FilterGroup>
 
+      <FilterGroup title="Price" :active="Boolean(filters.minPrice || filters.maxPrice)">
+        <div class="price-range">
+          <select v-model="filters.minPrice" class="group-select" aria-label="Minimum price">
+            <option value="">Min: any</option>
+            <option v-for="price in PRICE_OPTIONS" :key="price" :value="price">{{ formatPrice(price) }}</option>
+          </select>
+          <select v-model="filters.maxPrice" class="group-select" aria-label="Maximum price">
+            <option value="">Max: any</option>
+            <option v-for="price in PRICE_OPTIONS" :key="price" :value="price">{{ formatPrice(price) }}</option>
+          </select>
+        </div>
+      </FilterGroup>
+
       <FilterGroup v-model="filters.types" title="Property type" :options="typeOptions" />
 
-      <FilterGroup v-model="filters.statuses" title="Status" :options="statusOptions" />
+      <FilterGroup v-model="filters.categories" title="Category" :options="categoryOptions" />
 
-      <FilterGroup title="Max price" :active="Boolean(filters.maxPrice)">
-        <select v-model="filters.maxPrice" class="group-select" aria-label="Max price">
-          <option value="">Any</option>
-          <option v-for="price in PRICE_OPTIONS" :key="price" :value="price">{{ formatPrice(price) }}</option>
-        </select>
-      </FilterGroup>
+      <FilterGroup v-model="filters.contracts" title="Contract type" :options="contractOptions" />
 
       <FilterGroup title="Bedrooms" :active="Boolean(filters.minBeds)">
         <select v-model="filters.minBeds" class="group-select" aria-label="Bedrooms">
@@ -142,6 +183,14 @@ function exportStocklist() {
           <option v-for="beds in BED_OPTIONS" :key="beds" :value="beds">{{ beds }}+</option>
         </select>
       </FilterGroup>
+
+      <FilterGroup v-model="filters.incentives" title="Incentives" :options="incentiveOptions" />
+
+      <FilterGroup v-model="filters.storeys" title="Storeys" :options="storeyOptions" />
+
+      <FilterGroup v-model="filters.titleStatuses" title="Title status" :options="titleOptions" />
+
+      <FilterGroup v-model="filters.statuses" title="Status" :options="statusOptions" />
     </aside>
 
     <div class="list-main">
@@ -155,6 +204,12 @@ function exportStocklist() {
           </p>
         </div>
         <div class="top-actions">
+          <SearchDropdown
+            v-model="filters.query"
+            :result-count="visibleProperties.length"
+            placeholder="Search properties…"
+            hint="Search by suburb, region, estate or lot number."
+          />
           <!-- Disabled buttons get no hover events, so the tooltip hangs off a wrapper. -->
           <span v-if="stocklistLocked" class="locked-action" tabindex="0" aria-describedby="stocklist-tip">
             <BaseButton icon="lock" disabled>Stocklist</BaseButton>
@@ -189,35 +244,15 @@ function exportStocklist() {
   align-items: start;
 }
 
-/* Stays in view while the table scrolls; scrolls itself when taller than the screen. */
+/* No card: the filters sit straight on the page background. Top and max-height are set in fitSidebar(). */
 .filter-side {
   position: sticky;
-  top: 16px;
-  max-height: calc(100vh - 32px);
   overflow-y: auto;
-  padding: 16px 18px 6px;
+  overscroll-behavior: contain;
+  padding: 4px 10px 0 0;
+  scrollbar-width: thin;
 }
 
-.quick-search {
-  position: relative;
-  margin-bottom: 4px;
-}
-
-.quick-search svg {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  width: 17px;
-  height: 17px;
-  transform: translateY(-50%);
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 2;
-  stroke-linecap: round;
-  pointer-events: none;
-}
-
-.quick-search input,
 .group-search,
 .group-select {
   width: 100%;
@@ -226,10 +261,6 @@ function exportStocklist() {
   border-radius: 8px;
   background: #fff;
   font-size: 13.5px;
-}
-
-.quick-search input {
-  padding: 0 12px 0 38px;
 }
 
 .group-search {
@@ -241,7 +272,6 @@ function exportStocklist() {
   padding: 0 10px;
 }
 
-.quick-search input:focus,
 .group-search:focus,
 .group-select:focus {
   outline: none;
@@ -290,6 +320,12 @@ function exportStocklist() {
   transform: none;
 }
 
+.price-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .refine-head {
   display: flex;
   align-items: center;
@@ -314,7 +350,8 @@ function exportStocklist() {
 
   .filter-side {
     position: static;
-    max-height: none;
+    max-height: none !important;
+    overflow: visible;
   }
 }
 </style>

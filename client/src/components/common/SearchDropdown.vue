@@ -92,25 +92,26 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocumentClick)
   position: relative;
 }
 
-/* Bordered icon button, to match the other toolbar buttons. */
-.toolbar-icon {
+/* Bordered icon button, to match the other toolbar buttons.
+   :deep because BaseButton passes the class on by hand, so the scoped attribute doesn't reach it. */
+.search-dropdown :deep(.toolbar-icon) {
   border-color: var(--line);
   background: #fff;
   color: var(--ink);
 }
 
-.toolbar-icon:hover {
+.search-dropdown :deep(.toolbar-icon:hover) {
   border-color: #cfccc5;
   background: #fbfaf8;
 }
 
-.toolbar-icon.is-open {
+.search-dropdown :deep(.toolbar-icon.is-open) {
   border-color: var(--ink);
 }
 
-.toolbar-icon :deep(svg) {
-  width: 20px;
-  height: 20px;
+.search-dropdown :deep(.toolbar-icon svg) {
+  width: 23px;
+  height: 23px;
 }
 
 .search-dot {
